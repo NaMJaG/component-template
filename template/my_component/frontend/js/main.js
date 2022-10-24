@@ -9,39 +9,17 @@
  * component gets new data from Python.
  */
 function onDataFromPython(event) {
-  var myPlot = document.getElementById("plot");
-
   const data = event.detail;
-
-  spec = JSON.parse(data.args.spec);
+  let spec = JSON.parse(data.args.spec);
   console.log(spec);
-
-  /*Plotly.newPlot(plot, [{
-        x: [1, 2, 3, 4, 5],
-        y: [1, 2, 4, 8, 16]
-    }],
-        { margin: { t: 0 } }
-    );*/
-  Plotly.newPlot(myPlot, spec);
-
-  // on event, return data to Python
-  myPlot.on("plotly_click", (eventData) => {
-    const clickedPoints = eventData.points.map((p) => {
-      return { x: p.x, y: p.y };
-    });
-    Streamlit.setComponentValue(clickedPoints);
-  });
-
-  // Render iframe with the plot height
-  Streamlit.setFrameHeight(document.documentElement.clientHeight);
 }
 
 document.addEventListener(componentLoadedEventName, e =>
 {
-
 	// Render the component whenever python send a "render event"
 	Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onDataFromPython);
 	// Tell Streamlit that the component is ready to receive events
 	Streamlit.setComponentReady();
-
-}
+	Streamlit.setFrameHeight(0);
+	Streamlit.setComponentValue({data:"send message"});
+});

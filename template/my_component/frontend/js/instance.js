@@ -1,25 +1,43 @@
-document.addEventListener("load", e =>
+document.addEventListener("DOMContentLoaded", e =>
 {
+	console.log("onLoad");
 	// only execute once (even though multiple instances exist)
 	if(!parentDoc.hasOwnProperty(componentID+'_data'))
 	{
 		// Dispatch the event.
 		document.dispatchEvent(preLoadedOnceEvent);
 		parentDoc[componentID+'_data'] = {registeredComponents: []};
-		
-		CSSVariablesToString(vars, false, "#"+tooltipID);
 
-		let client = new XMLHttpRequest();
-		addParentStyleSheets.forEach( styleSheetPath =>
+		let url = window.location.pathname;
+		let segments = url.split('/');
+		if(segments[segments.length-1].includes('.htm'))
 		{
-			client.open('GET', styleSheetPath);
+			segments.pop();
+		}
+		absolutePath = window.location.protocol+"://"+window.location.host+segments.join("/")+"/";
+
+		let r = new RegExp('^(?:[a-z+]+:)?//', 'i');
+
+		for(i = 0; i < addParentStyleSheets.length; i++)
+		{
+			console.log("Adding "+addParentStyleSheets[i]);
+
+			let client = new XMLHttpRequest();
+			client.open('GET', addParentStyleSheets[i]);
 			client.onreadystatechange = function() {
-				client.responseText.replaceVariables();
-				AppendStyle(componentID, client.responseText, parentDoc);
+				if (this.readyState === 4 && this.status === 200){
+					if(this.responseText)
+					{
+						let text = this.responseText.replaceVariables();
+
+						console.log(text);
+						AppendStyle(componentID, text, parentDoc);
+					}
+				}
 			}
 			client.send();
 		}
-		
+
 		// Dispatch the event.
 		document.dispatchEvent(loadedOnceEvent);
 	}

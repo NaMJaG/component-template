@@ -3,9 +3,9 @@ const parentDoc = window.parent.document;
 // components iframe element in parent document
 const iframe = window.frameElement;
 
-const componentID = document.title.replace(" ","_").replace(/[^a-zA-Z0-9_]/g, '').toLower().trim().toLowerCase();
+var componentID = document.title.replaceAll(" ","_").replace(/[^a-zA-Z0-9_]/g, '').trim().toLowerCase();
 
-const tooltipID = componentID+"-tooltip";
+var tooltipID = componentID+"-tooltip";
 
 const preLoadedOnceEventName = 'pre-loaded-once';
 const preLoadedOnceEvent = new Event(preLoadedOnceEventName);
@@ -15,6 +15,8 @@ const loadedOnceEvent = new Event(loadedOnceEventName);
 
 const componentLoadedEventName = 'component-loaded';
 const componentLoadedEvent = new Event(componentLoadedEventName);
+
+var absolutePath = null;
 
 var addParentStyleSheets = ["css/parent.css"];
 
@@ -151,35 +153,30 @@ function base64toBlob(base64Data, contentType) {
 
 String.prototype.removeDouble = function(symbol)
 {
-	let str = this;
+	let str = this.slice();
 	let doubleSymbole = symbol+symbol;
 	while(str.includes(doubleSymbole))
 	{
-		str = str.replace(doubleSymbole, symbol);
+		str = str.replaceAll(doubleSymbole, symbol);
 	}
-	return str;
-};
-
-String.prototype.replaceAll = function(toReplace, seperator, symbol)
-{
-	let str = this;
-	toReplace.split(seperator).forEach( (replaceSymbol) =>
-	{
-		str = str.replace(replaceSymbol, symbol);
-	});
 	return str;
 };
 
 String.prototype.replaceVariables = function()
 {
-	let str = this;
-	let matches = str.match(/%%(.+?)%%/);
-	matches.forEach( (toReplace) =>
+	let str = this.slice();
+	if(!str)
+		return;
+	let reg = /(?<=%)(.*?)(?=%)/g;
+	let search = str.match(reg);
+
+	search.forEach( toReplace =>
 	{
-		name = toReplace.replace("%","").trim();
-		if(document.hasOwnProperty(name))
+		if(window.hasOwnProperty(toReplace))
 		{
-			str = str.replace(toReplace, document[name]);
+			str = str.replaceAll("%"+toReplace+"%", window[toReplace]);
+			if(!reg.test(str))
+				return str;
 		}
 	});
 	return str;
