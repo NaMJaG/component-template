@@ -8,13 +8,13 @@ title = "Component Template"
 
 if _RELEASE:
     _component_func = components.declare_component(
-        "my_component",
-        path="./my_component/frontend/"
+        "component-template",
+        path="./component/frontend/"
     )
 else:
     _component_func = components.declare_component(
-        "my_component",
-        path="./scripts/custom_components/my_component/frontend/"
+        "component-template",
+        path="./path/to/component/frontend/"
     )
 
 def my_component(data = {"init"}):
